@@ -92,7 +92,71 @@ shinyUI(fluidPage(
          h5("Kaplan-Meier plots with x.1 covariate groups divided by median"),
          plotOutput("plot.2"),
          br()
-         )         
+         ),
+        
+        tabPanel("95 percent CI calcs for a contrast",
+                
+                 h5("Coefficients (c.1) from model with time interaction"),
+                 tableOutput("coef.3"),
+                 br(),
+                 
+                 h5("Covariance (cov.1) from model with time interaction"),
+                 tableOutput("cov.3.table"),
+                 br(),
+                 
+                 h5("The vector of estimated paramters, c.1"),
+                 uiOutput("c.1"),
+                 br(),
+                 
+                 # get hr
+                 # .......................................
+                 # for x.1 = 0.2 at time=2, h_1 = h_0 * exp( \\beta_1 * 0.2 + \\beta_{1t} * 0.2 * log(2))
+                 # for x.1 = 0.6 at time=2, h_2 = h_0 * exp( \\beta_1 * 0.6 + \\beta_{1t} * 0.6 * log(2))
+                 # (h_1/h_0) / (h_2/h_0) = exp( \\beta_1 * 0.2 + \\beta_{1t} * 0.2 * log(2) - \\beta_1 * 0.6 - \\beta_{1t} * 0.6 * log(2))
+                 # h_1 / h_2 = exp( \\beta_1*(0.2-0.6) + \\beta+{1t}*log(2)*(0.2-0.6) )
+                 
+                 h5("Planned contrast, cp.1: Contrast hazard at x.1=0.2 to x.1=0.6"),
+                 withMathJax(
+                   helpText('\\( 
+                             h_1 = h_0 \\cdot exp(\\beta_1 * 0.2 + \\beta_{1t} * 0.2 * log(2)) \\\\
+                             h_2 = h_0 \\cdot exp(\\beta_1 * 0.6 + \\beta_{1t} * 0.6 * log(2)) \\\\
+                              \\displaystyle\\frac{\\frac{h_1}{h_0} } { \\frac{h_2}{h_0} } = exp(\\beta_1 \\cdot 0.2 + \\beta_{1t} \\cdot 0.2 \\cdot log(2) - \\beta_1 \\cdot 0.6 - \\beta_{1t} \\cdot 0.6 \\cdot log(2)) \\\\
+                              \\frac{h_1}{h_2} = exp(\\beta_1*(0.2-0.6) + \\beta_{1t}*log(2)*(0.2-0.6)) \\\\
+                              \\rightarrow (\\beta_1 \\beta_{1t})^{\\prime} \\cdot (0.2-0.6, log(2)*(0.2-0.6)) \\\\
+                              \\rightarrow (\\beta_1 \\beta_{1t})^{\\prime} \\cdot cp.1 \\\\
+                              \\rightarrow cp.1 = (-0.4, log(2)*-0.4)
+                            \\)')
+                 ),
+                 uiOutput("cp.1"),
+                 br(),
+                 
+                 h5("Estimated sd for contrast/HR = sqrt(var.1)"),
+                 withMathJax(
+                   helpText('\\( 
+                             cp.1^{\\prime} \\cdot cov.1 \\cdot cp.1
+                             \\)')
+                 ),
+                 uiOutput("var.3"),
+                 br(),
+
+                 h5("Multiply specified contrast times vector of parameters = estimated HR (ce.1)"),
+                 withMathJax(
+                   helpText('\\( 
+                             cp.1^{\\prime} \\cdot c.1
+                             \\)')
+                 ),
+                 uiOutput("ce.1"),
+                 br(),
+                 
+                 h5("Get 95 percent ci from var.1 and ce.1 "),
+                 withMathJax(
+                   helpText('\\( 
+                             exp(ce.1 \\pm 1.96 \\cdot sqrt(var.1))
+                             \\)')
+                 ),
+                 uiOutput("ci.3"),
+                 br()
+        )
         )
       )
   )

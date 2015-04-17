@@ -169,6 +169,59 @@ output$plot.2 <- renderPlot({
 })
 
 
+# Get confidence intervals for hazard ratio of x.1 at 0.2 compared to 0.6
+# ..................................................................
+
+coef.3 = reactive({
+  coef.1 = summary(fit.3())$coefficients
+})
+
+cov.3 = reactive({
+  cov.1 = vcov(fit.3())
+})
+
+output$coef.3 <- renderTable({
+  coef.3()
+})
+
+output$cov.3.table = renderTable({
+  cov.3()
+})
+
+output$c.1 = renderPrint({
+  coef.3 = round(coef.3()[,1],5)
+  rownames(coef.3) = NULL
+  return(coef.3)
+  })
+output$cp.1 <- renderPrint({ round(c(-0.4, log(2)*-.4),5) })
+
+output$ce.1 = renderTable({
+  ce.1 = c(-0.4, log(2)*-.4) %*% coef.3()[,1]
+  rownames(ce.1) = NULL
+  return(ce.1)
+})
+
+output$var.3 = renderTable({
+  c.1 = c(-0.4, log(2)*-.4)
+  var.1 = sqrt(t(c.1) %*% cov.3() %*% c.1)
+  return(var.1)
+})
+
+output$ci.3 = renderPrint({
+  c.1 = c(-0.4, log(2)*-.4)
+  ce.1 = c(-0.4, log(2)*-.4) %*% coef.3()[,1]
+  var.1 = sqrt(t(c.1) %*% cov.3() %*% c.1)
+  ci.95.1 = paste(round(exp(ce.1),3),
+                  " (", 
+                  round(exp(ce.1-1.96*var.1),3),
+                  ", ", 
+                  round(exp(ce.1+1.96*var.1),3),
+                  ")", sep="")
+  return(ci.95.1)
+})
+
+
+
 # Equations.....................................................
 
 # see http://shiny.rstudio.com/gallery/mathjax.html
