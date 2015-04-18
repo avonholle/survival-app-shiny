@@ -30,6 +30,33 @@ shinyUI(fluidPage(
                              \\)')
                   ),
                   min=0.1, max=1, value=0.2, step=0.2, format="#.#", animate=FALSE),
+      br(),
+      
+      h4("Contrast parameters"),
+      tags$hr(),
+      sliderInput("contrast.x1.1", 
+                  withMathJax(
+                    helpText('\\( 
+                             \\text{ First value for x.1 in contrast} 
+                             \\)')
+                  ),
+                  min=0.01, max=1, value=0.6, step=0.2, format="#.#", animate=FALSE),
+      br(),
+      sliderInput("contrast.x1.2", 
+                  withMathJax(
+                    helpText('\\( 
+                             \\text{ Second value for x.1 in contrast} 
+                             \\)')
+                  ),
+                  min=0.01, max=1, value=0.2, step=0.2, format="#.#", animate=FALSE),
+      br(),
+      sliderInput("contrast.time", 
+                  withMathJax(
+                    helpText('\\( 
+                             \\text{ Time for contrast} 
+                             \\)')
+                  ),
+                  min=1, max=10, value=4, step=1, format="#.#", animate=FALSE),
       br()
     ),
   
@@ -38,11 +65,11 @@ shinyUI(fluidPage(
         withMathJax(),
         
         tabPanel("Background",
-        h5("Simulation model without time interaction"),
+        h5("Simulation Cox regression model without time interaction"),
          uiOutput("eqn1"),
          br(),
          
-        h5("Simulation model with time interaction"),
+        h5("Simulation Cox regression model with time interaction"),
         uiOutput("eqn2"),
          br(),
          
@@ -51,7 +78,9 @@ shinyUI(fluidPage(
             helpText(   a("DOI 10.1002/sim.5452",
                           href="http://www.ncbi.nlm.nih.gov.libproxy.lib.unc.edu/pmc/articles/PMC3546387/")),
             helpText(    a("PMID 15724232",
-                          href="http://www.ncbi.nlm.nih.gov.libproxy.lib.unc.edu/pubmed/15724232"))
+                          href="http://www.ncbi.nlm.nih.gov.libproxy.lib.unc.edu/pubmed/15724232")),
+            helpText(   a("Link to programs to make the Shiny app",
+                          href="https://github.com/avonholle/survival-app-shiny"))
             ),
          br(),
         
@@ -95,44 +124,53 @@ shinyUI(fluidPage(
          ),
         
         tabPanel("95 percent CI calcs for a contrast",
-                
-                 h5("Coefficients (c.1) from model with time interaction"),
-                 tableOutput("coef.3"),
-                 br(),
+                   h5("Coefficients (c.1) from model with time interaction"),
+                   tableOutput("coef.3"),
+                   br(),
+                   
+                   h5("Covariance (cov.1) from model with time interaction"),
+                   tableOutput("cov.3.table"),
+                   br(),
+                   
+                   h5("The vector of estimated paramters, c.1"),
+                   uiOutput("c.1"),
+                   br(),
+                   
+                   # get hr
+                   # .......................................
+                   # for x.1 = 0.2 at time=2, h_1 = h_0 * exp( \\beta_1 * 0.2 + \\beta_{1t} * 0.2 * log(2))
+                   # for x.1 = 0.6 at time=2, h_2 = h_0 * exp( \\beta_1 * 0.6 + \\beta_{1t} * 0.6 * log(2))
+                   # (h_1/h_0) / (h_2/h_0) = exp( \\beta_1 * 0.2 + \\beta_{1t} * 0.2 * log(2) - \\beta_1 * 0.6 - \\beta_{1t} * 0.6 * log(2))
+                   # h_1 / h_2 = exp( \\beta_1*(0.2-0.6) + \\beta+{1t}*log(2)*(0.2-0.6) )
+            
+                 h4("Contrast parameters"),
+                 tags$hr(),
                  
-                 h5("Covariance (cov.1) from model with time interaction"),
-                 tableOutput("cov.3.table"),
-                 br(),
                  
-                 h5("The vector of estimated paramters, c.1"),
-                 uiOutput("c.1"),
-                 br(),
-                 
-                 # get hr
-                 # .......................................
-                 # for x.1 = 0.2 at time=2, h_1 = h_0 * exp( \\beta_1 * 0.2 + \\beta_{1t} * 0.2 * log(2))
-                 # for x.1 = 0.6 at time=2, h_2 = h_0 * exp( \\beta_1 * 0.6 + \\beta_{1t} * 0.6 * log(2))
-                 # (h_1/h_0) / (h_2/h_0) = exp( \\beta_1 * 0.2 + \\beta_{1t} * 0.2 * log(2) - \\beta_1 * 0.6 - \\beta_{1t} * 0.6 * log(2))
-                 # h_1 / h_2 = exp( \\beta_1*(0.2-0.6) + \\beta+{1t}*log(2)*(0.2-0.6) )
-                 
-                 h5("Planned contrast, cp.1: Contrast hazard at x.1=0.2 to x.1=0.6"),
+                 h5("Planned contrast, cp.1: Contrast hazard at two different levels of x.1 at time t"),
                  withMathJax(
                    helpText('\\( 
-                             h_1 = h_0 \\cdot exp(\\beta_1 * 0.2 + \\beta_{1t} * 0.2 * log(2)) \\\\
-                             h_2 = h_0 \\cdot exp(\\beta_1 * 0.6 + \\beta_{1t} * 0.6 * log(2)) \\\\
-                              \\displaystyle\\frac{\\frac{h_1}{h_0} } { \\frac{h_2}{h_0} } = exp(\\beta_1 \\cdot 0.2 + \\beta_{1t} \\cdot 0.2 \\cdot log(2) - \\beta_1 \\cdot 0.6 - \\beta_{1t} \\cdot 0.6 \\cdot log(2)) \\\\
-                              \\frac{h_1}{h_2} = exp(\\beta_1*(0.2-0.6) + \\beta_{1t}*log(2)*(0.2-0.6)) \\\\
-                              \\rightarrow (\\beta_1 \\beta_{1t})^{\\prime} \\cdot (0.2-0.6, log(2)*(0.2-0.6)) \\\\
-                              \\rightarrow (\\beta_1 \\beta_{1t})^{\\prime} \\cdot cp.1 \\\\
-                              \\rightarrow cp.1 = (-0.4, log(2)*-0.4)
+                             h_1 = h_0 \\cdot exp(\\beta_1 \\cdot x_{t1} + \\beta_{1t} \\cdot x_{t1} \\cdot log(time)) \\\\
+                             h_2 = h_0 \\cdot exp(\\beta_1 \\cdot x_{t2} + \\beta_{1t} \\cdot x_{t2} \\cdot log(time)) \\\\
+                              \\displaystyle\\frac{\\frac{h_1}{h_0} } { \\frac{h_2}{h_0} } = exp(\\beta_1 \\cdot x_{t1} + \\beta_{1t} \\cdot x_{t1} \\cdot log(time) - \\beta_1 \\cdot x_{t2} - \\beta_{1t} \\cdot x_{t2} \\cdot log(time)) \\\\
+                              \\frac{h_1}{h_2} = exp(\\beta_1 \\cdot (x_{t1} - x_{t2}) + \\beta_{1t} \\cdot log(time) \\cdot (x_{t1}-x_{t2})) \\\\
+                              \\rightarrow = (\\beta_1, \\beta_{1t})^{\\prime} \\cdot (x_{t1}-x_{t2}, log(time) \\cdot (x_{t1}-x_{t2})) \\\\
+                              \\rightarrow = (\\beta_1 , \\beta_{1t})^{\\prime} \\cdot cp.1 \\\\
+                              \\rightarrow cp.1 = ( (x_{t1}-x_{t2}), \\text{ }log(time) \\cdot (x_{t1}-x_{t2}))
                             \\)')
                  ),
-                 uiOutput("cp.1"),
+                uiOutput("text1"),
+                uiOutput("text2"),
+                uiOutput("text3"),
+                
+                 HTML("cp.1="),
+                uiOutput("cp.1"),
                  br(),
                  
                  h5("Estimated sd for contrast/HR = sqrt(var.1)"),
                  withMathJax(
                    helpText('\\( 
+                              C^{\\prime} \\cdot \\Sigma \\cdot C \\rightarrow \\\\
                              cp.1^{\\prime} \\cdot cov.1 \\cdot cp.1
                              \\)')
                  ),
@@ -142,7 +180,7 @@ shinyUI(fluidPage(
                  h5("Multiply specified contrast times vector of parameters = estimated HR (ce.1)"),
                  withMathJax(
                    helpText('\\( 
-                             cp.1^{\\prime} \\cdot c.1
+                             ce.1 = cp.1^{\\prime} \\cdot c.1
                              \\)')
                  ),
                  uiOutput("ce.1"),
