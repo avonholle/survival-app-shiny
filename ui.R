@@ -19,7 +19,7 @@ shinyUI(fluidPage(
       sliderInput("beta1t", 
                   withMathJax(
                     helpText('\\( 
-                             \\beta  \\text{ coefficient for time interaction } (\\beta_{1t})
+                             \\beta  \\text{ coefficient for time interaction } (\\beta_{t})
                              \\)')
                   ),
                   min=0.1, max=3, value=0.5, step=0.1, format="#.#", animate=FALSE),
@@ -61,9 +61,8 @@ shinyUI(fluidPage(
     ),
   
     mainPanel(
-      tabsetPanel(selected="Background",
+      tabsetPanel(selected="Plots",
         withMathJax(),
-        
         tabPanel("Background",
         h5("Simulation Cox regression model without time interaction"),
          uiOutput("eqn1"),
@@ -169,10 +168,8 @@ shinyUI(fluidPage(
                  
                  h5("Estimated sd for contrast/HR = sqrt(var.1)"),
                  withMathJax(
-                   helpText('\\( 
-                              C^{\\prime} \\cdot \\Sigma \\cdot C \\rightarrow \\\\
-                             cp.1^{\\prime} \\cdot cov.1 \\cdot cp.1
-                             \\)')
+                   helpText('$$C^{\\prime} \\cdot \\Sigma \\cdot C \\rightarrow \\\\
+                             cp.1^{\\prime} \\cdot cov.1 \\cdot cp.1$$')
                  ),
                  uiOutput("var.3"),
                  br(),

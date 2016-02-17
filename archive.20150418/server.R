@@ -161,12 +161,11 @@ output$plot.2 <- renderPlot({
   
   par(mfrow=c(2,2))
   
-  plot(fit.4(), lty=c(1,3), xlab="Time", ylab="Survival Probability", col=c("red", "blue"))
-  legend(max(df.1()$time.f)-3, 0.9, c("Upper half x.1","Lower half x.1") , col=c("red", "blue"), lty=c(1,3) )
+  plot(fit.4(), lty=c(1,3), xlab="Time", ylab="Survival Probability")
+  legend(max(df.1()$time.f)-3, 0.9, c("Lower half x.1","Upper half x.1") , lty=c(1,3) )
   
-  plot(fit.4(), lty=c(1,3), xlab="Time", ylab="log(-log(y))", fun=cloglog2, col=c("red", "blue"))
-  plot(fit.4(), lty=c(1,3), xlab="Time", ylab="Log cumulative hazard rate", fun='cumhaz', 
-       col=c("red", "blue")) # see http://www.math.wustl.edu/~jmding/math434/R_model_diag.R
+  plot(fit.4(), lty=c(1,3), xlab="Time", ylab="log(-log(y))", fun=cloglog2)
+  plot(fit.4(), lty=c(1,3), xlab="Time", ylab="Log cumulative hazard rate", fun='cumhaz') # see http://www.math.wustl.edu/~jmding/math434/R_model_diag.R
 })
 
 
@@ -194,30 +193,23 @@ output$c.1 = renderPrint({
   rownames(coef.3) = NULL
   return(coef.3)
   })
-
-contrast.diff = reactive({
-  input$contrast.x1.1 - input$contrast.x1.2
-})
-
-output$cp.1 <- renderPrint({ round(c( contrast.diff(),
-                                      log(input$contrast.time)*contrast.diff()),
-                                   5) })
+output$cp.1 <- renderPrint({ round(c(-0.4, log(2)*-.4),5) })
 
 output$ce.1 = renderTable({
-  ce.1 = c(contrast.diff(), log(input$contrast.time)*contrast.diff()) %*% coef.3()[,1]
+  ce.1 = c(-0.4, log(2)*-.4) %*% coef.3()[,1]
   rownames(ce.1) = NULL
   return(ce.1)
 })
 
 output$var.3 = renderTable({
-  c.1 = c(contrast.diff(), log(input$contrast.time)*contrast.diff())
+  c.1 = c(-0.4, log(2)*-.4)
   var.1 = sqrt(t(c.1) %*% cov.3() %*% c.1)
   return(var.1)
 })
 
 output$ci.3 = renderPrint({
-  c.1 = c(contrast.diff(), log(as.numeric(input$contrast.time))*contrast.diff())
-  ce.1 = c.1 %*% coef.3()[,1]
+  c.1 = c(-0.4, log(2)*-.4)
+  ce.1 = c(-0.4, log(2)*-.4) %*% coef.3()[,1]
   var.1 = sqrt(t(c.1) %*% cov.3() %*% c.1)
   ci.95.1 = paste(round(exp(ce.1),3),
                   " (", 
@@ -236,13 +228,14 @@ output$ci.3 = renderPrint({
 # have to be careful with font sizes.
 output$eqn1 <- renderUI({
   withMathJax(
-    helpText('$$\\text{h}(t \\mid x_i) = \\text{h}_0(t) \\cdot \\text{exp(}\\beta_1 x_i) \\\\
+    helpText('\\( \\text{h}(t \\mid x_i) = \\text{h}_0(t) \\cdot \\text{exp(}\\beta_1 x_i) \\\\
                   \\text{---------------} \\\\
                   H_0(t) = \\int_0^t h_0(u)du \\\\
                   S(t \\mid x) = exp(-H_{0}(t) \\cdot exp(\\beta^{\\prime}x)) \\\\
                   F(t \\mid x) = 1 - exp(-H_{0}(t) \\cdot exp(\\beta^{\\prime}x)) \\\\
                   \\text{Distribution of event times is } \\sim F(t \\mid x) \\\\
-                  \\text{T is survival time and t is time. } x_i \\text{ is } \\sim U(0,1).$$')
+                  \\text{T is survival time and t is time. } x_i \\text{ is } \\sim U(0,1).
+             \\)')
   )
 })
 
@@ -250,7 +243,7 @@ output$eqn2 <- renderUI({
   withMathJax(
     helpText('\\( \\text{h}(t \\mid x_i(t)) = \\text{h}_0(t) \\cdot \\text{exp(} \\beta_t z(t) + \\beta_1 x_i)\\\\
              z(t) = kt, \\text{ with } k>0  \\\\
-             \\text{In this simulation } k = x_i \\text{ and } t=log(t).
+             \\text{In this simulation } k = x_i.
              \\)')
   )
 })
@@ -263,18 +256,6 @@ output$eqn3 <- renderUI({
             \\lambda(t) = lim_{dt \\rightarrow 0} \\displaystyle\\frac{Pr(t \\leq T < t+dt)}{dt \\cdot S(t)} = \\frac{f(t)}{S(t)} = -\\frac{S^{\\prime}(t)}{S(t)}
              \\)')
   )
-})
-
-output$text1 <- renderText({ 
-  HTML(paste("x", tags$sub("t1"), "=", input$contrast.x1.1))
-})
-
-output$text2 <- renderText({ 
-  HTML(paste("x", tags$sub("t2"), "=", input$contrast.x1.2))
-})
-
-output$text3 <- renderText({ 
-  HTML(paste("time = ", input$contrast.time))
 })
 
 })
